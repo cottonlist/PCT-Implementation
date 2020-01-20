@@ -151,7 +151,6 @@ public class PriorityBasedRandomScheduler {
 
                 infiniteLoop(flag, id);
                 System.out.println("instruction 1-1");
-
                 count.cnt++;
                 priorityChange(count.cnt, priorityChangePoint, priority, bugDepth, id);
                 flagSetting(isTerminated, flag, priority);

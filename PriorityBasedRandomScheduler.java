@@ -7,6 +7,13 @@ class Count {
     int cnt = 0;
 }
 
+class BankAccount {
+    int balance = 1000;
+    int getBalance () {
+        return balance;
+    }
+}
+
 public class PriorityBasedRandomScheduler {
 
     // Create random priority value for each thread
@@ -17,13 +24,13 @@ public class PriorityBasedRandomScheduler {
     }
 
     // Decide which thread to execute by checking flag and termination
-    private static void flagSetting(@NotNull boolean[] isTerminated, boolean[] flag, int[] priority){
-        if (isTerminated[1]){
+    private static void flagSetting(@NotNull boolean[] isTerminated, boolean[] flag, int[] priority) {
+        if (isTerminated[1]) {
             flag[0] = true;
-        } else if (isTerminated[0]){
+        } else if (isTerminated[0]) {
             flag[1] = true;
         } else {
-            if (priority[0] > priority[1]){
+            if (priority[0] > priority[1]) {
                 flag[0] = true;
                 flag[1] = false;
             } else {
@@ -34,20 +41,20 @@ public class PriorityBasedRandomScheduler {
     }
 
     // Change priority of corresponding thread when reaching priority change point
-    private static void priorityChange(int count, int priorityChangePoint, int[] priority, int bugDepth, int id){
-        if (count == priorityChangePoint){
+    private static void priorityChange(int count, int priorityChangePoint, int[] priority, int bugDepth, int id) {
+        if (count == priorityChangePoint) {
             priority[id] = bugDepth - 1;
         }
     }
 
     // Enter infinite loop if don't want the thread to execute
-    private static void infiniteLoop(@NotNull boolean[] flag, int id){
-        while(!flag[id]){
+    private static void infiniteLoop(@NotNull boolean[] flag, int id) {
+        while (!flag[id]) {
             ;
         }
     }
 
-    public static void main(String args[]){
+    public static void main(String args[]) {
 
         // Declare an integer to account the number of instructions executed
         Count count = new Count();
@@ -58,8 +65,8 @@ public class PriorityBasedRandomScheduler {
         // Declare an array with n threads
         int numberOfThreads = 2;
         int[] threadList = new int[numberOfThreads];
-        for(int i=0; i<threadList.length; i++){
-            threadList[i] = i+1;
+        for (int i = 0; i < threadList.length; i++) {
+            threadList[i] = i + 1;
         }
 
         // Assign the number of instructions executed
@@ -67,8 +74,8 @@ public class PriorityBasedRandomScheduler {
 
         // Randomly assign a priority value to each thread
         int[] priority = new int[numberOfThreads];
-        priority[0] = randomPriorityCreator(threadList)+1;
-        if (priority[0] == bugDepth + numberOfThreads - 1){
+        priority[0] = randomPriorityCreator(threadList) + 1;
+        if (priority[0] == bugDepth + numberOfThreads - 1) {
             priority[1] = priority[0] - 1;
         } else {
             priority[1] = priority[0] + 1;
@@ -77,12 +84,12 @@ public class PriorityBasedRandomScheduler {
         System.out.println("Priority of thread 1 is " + priority[1]);
 
         // Randomly insert a priority change point
-        int priorityChangePoint = (int)(Math.random()*numberOfInstructions + 1);
+        int priorityChangePoint = (int) (Math.random() * numberOfInstructions + 1);
         System.out.println("The priority change point is after " + priorityChangePoint + " instruction(s)");
 
         // Schedule thread with higher priority to execute first
         boolean[] flag = new boolean[numberOfThreads];
-        if (priority[0] > priority[1]){
+        if (priority[0] > priority[1]) {
             flag[0] = true;
             flag[1] = false;
         } else {
@@ -92,18 +99,26 @@ public class PriorityBasedRandomScheduler {
 
         // Create boolean array to indicate the termination of a thread
         boolean[] isTerminated = new boolean[numberOfThreads];
-        for(int i = 0; i < numberOfThreads; i++){
+        for (int i = 0; i < numberOfThreads; i++) {
             isTerminated[i] = false;
         }
 
-        Thread t0 = new Thread(){
+        final BankAccount[] myAccount = {new BankAccount()};
+
+        MethodInfo
+
+
+        Thread t0 = new Thread() {
+
+            int id = 0;
+
             @Override
             public void run() {
 
-                int id = 0;
-
                 infiniteLoop(flag, id);
-                System.out.println("instruction 0-1");
+                myAccount[0] = null;
+                //System.out.println("instruction 0-1");
+                //if (myAccount.getBalance() > 600)
                 count.cnt++;
                 priorityChange(count.cnt, priorityChangePoint, priority, bugDepth, id);
                 flagSetting(isTerminated, flag, priority);
@@ -129,13 +144,14 @@ public class PriorityBasedRandomScheduler {
             }
         };
 
-        Thread t1 = new Thread(){
+        Thread t1 = new Thread() {
+            int id = 1;
             @Override
             public void run() {
-                int id = 1;
 
                 infiniteLoop(flag, id);
                 System.out.println("instruction 1-1");
+
                 count.cnt++;
                 priorityChange(count.cnt, priorityChangePoint, priority, bugDepth, id);
                 flagSetting(isTerminated, flag, priority);
@@ -158,6 +174,29 @@ public class PriorityBasedRandomScheduler {
                 isTerminated[id] = true;
                 priorityChange(count.cnt, priorityChangePoint, priority, bugDepth, id);
                 flag[0] = true;
+
+                while (!flag[id]) {
+                    ;
+                }
+                System.out.println("instruction 1-1");
+                count.cnt++;
+                if (count.cnt == priorityChangePoint) {
+                    priority[id] = bugDepth - 1;
+                }
+                if (isTerminated[1]) {
+                    flag[0] = true;
+                } else if (isTerminated[0]) {
+                    flag[1] = true;
+                } else {
+                    if (priority[0] > priority[1]) {
+                        flag[0] = true;
+                        flag[1] = false;
+                    } else {
+                        flag[0] = false;
+                        flag[1] = true;
+                    }
+                }
+
             }
         };
 
@@ -166,3 +205,5 @@ public class PriorityBasedRandomScheduler {
     }
 
 }
+
+
